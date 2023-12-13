@@ -2,7 +2,7 @@ const express = require('express')
 const routes = require('./routes')
 const bodyParser = require('body-parser')
 const errorhandler = require('errorhandler')
-
+const cors = require('cors')
 let data = {
     tasks: [
         {
@@ -93,6 +93,7 @@ const app = express()
 const port = 8000
 app.use(bodyParser.json())
 app.use(errorhandler())
+app.use(cors())
 
 app.use((req, res, next) => {
     req.data = data
