@@ -1,17 +1,13 @@
-const displayItems = (data, pageNumber, itemsPerPage) => {
-    const startIndex = (pageNumber - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentPageItems = data.slice(startIndex, endIndex);
-
-    return currentPageItems
-}
-
 module.exports = {
     getTasks(req, res) {
         let { page, perPage } = req.query
         page = page || 1 //default page
         perPage = perPage || 5 //default length per page
-        const result = displayItems(req.data.tasks, page, perPage)
+        const pageCount = Math.ceil(req.data.tasks.length / perPage);
+        if (page > pageCount) {
+            page = pageCount
+        }
+        const result = req.data.tasks.slice(page * perPage - perPage, page * perPage)
         res.status(200).send({
             result: result,
             page: page,
