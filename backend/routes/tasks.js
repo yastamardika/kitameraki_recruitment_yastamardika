@@ -4,9 +4,6 @@ module.exports = {
         page = page || 1 //default page
         perPage = perPage || 5 //default length per page
         const pageCount = Math.ceil(req.data.tasks.length / perPage);
-        if (page > pageCount) {
-            page = pageCount
-        }
         const result = req.data.tasks.slice(page * perPage - perPage, page * perPage)
         res.status(200).send({
             result: result,
