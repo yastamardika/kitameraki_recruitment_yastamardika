@@ -46,9 +46,6 @@ export const App: React.FunctionComponent = () => {
             Kitameraki Test 
           </Text>
           <Stack horizontal tokens={stackTokens} horizontalAlign="center">
-            {/* <Link href="https://developer.microsoft.com/en-us/fluentui#/styles/web/icons">Icons</Link>
-            <Link href="https://developer.microsoft.com/en-us/fluentui#/styles/web">Styles</Link>
-            <Link href="https://aka.ms/themedesigner">Theme designer</Link> */}
           </Stack>
         </Stack>
       </Stack.Item>

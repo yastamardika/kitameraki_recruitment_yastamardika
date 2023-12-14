@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { getRTL } from '@fluentui/react/lib/Utilities';
 import { FocusZone, FocusZoneDirection } from '@fluentui/react/lib/FocusZone';
@@ -64,7 +64,7 @@ const classNames = mergeStyleSets({
     flexShrink: 0,
   },
 });
-interface UpdateTask{  
+interface UpdateTask {
   title: string;
   description: string;
 }
@@ -99,7 +99,7 @@ const onRenderCell = (item: Task | undefined, index: number | undefined = 0): JS
         <div>
           <Stack enableScopedSelectors horizontal >
             <Stack.Item grow={1}>
-              <UpdateTaskForm title={`${item?.title}`} description={`${item?.description}`} id={index+1}/>
+              <UpdateTaskForm title={`${item?.title}`} description={`${item?.description}`} id={index + 1} />
             </Stack.Item>
             <Stack.Item grow={1}>
               <PrimaryButton text="Delete Task" onClick={_deleteTask} />
@@ -114,21 +114,47 @@ const onRenderCell = (item: Task | undefined, index: number | undefined = 0): JS
 
 export const TaskList: React.FunctionComponent = () => {
   const [task, setTask] = useState<Task[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const apiUrl = `http://localhost:8000/tasks?page=${page}&perPage=10`;
+
+  const loadMoreData = () => {
+    if (!loading) {
+      setLoading(true);
+      axios.get(apiUrl)
+        .then(response => {
+          setTask(prevTasks => [...prevTasks, ...response.data.result]);
+          setPage(prevPage => prevPage + 1);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
+    }
+  }
 
   useEffect(() => {
-    const apiUrl = 'http://localhost:8000/tasks?page=1&perPage=26';
-
-    axios.get(apiUrl)
-      .then(response => {
-        setTask(response.data.result);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-
-  }
+    loadMoreData();
+  },[]
     // , [task] comment this to handle update and delete
   );
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const { scrollTop, clientHeight, scrollHeight } =
+        document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 20) {
+        loadMoreData();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  },[loading])
 
   return (
     <FocusZone direction={FocusZoneDirection.vertical}>
@@ -136,6 +162,7 @@ export const TaskList: React.FunctionComponent = () => {
       <br />
       <Text variant="large">Task List</Text>
       <List items={task} onRenderCell={onRenderCell} />
+      {loading ? <Text variant="large">Loading...</Text> : ''}
     </FocusZone>
   );
 };

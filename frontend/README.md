@@ -4,6 +4,9 @@ This is a [Create React App](https://github.com/facebook/create-react-app) based
 
 ## Available Scripts
 
+### `npm install` 
+To install the dependency needed
+
 In the project directory, you can run:
 
 ### `npm start`
