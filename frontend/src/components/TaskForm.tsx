@@ -37,7 +37,10 @@ const FormComponent = <T extends unknown>({
   );
 };
 
-const TaskForm = () => {
+interface TaskFormProps {
+  onTaskAdded: () => void; // Callback function to trigger when a task is added
+}
+const TaskForm:React.FC<TaskFormProps> = ({onTaskAdded}) => {
   const [form, setForm] =useState<FormValue>({
     title: "",
     description: ""
@@ -65,6 +68,7 @@ const TaskForm = () => {
     axios.post(apiUrl, form)
       .then(response => {
         alert(`New task added successfully!`)
+        onTaskAdded();
       })
       .catch(error => {
         console.error('Error fetching data:', error);

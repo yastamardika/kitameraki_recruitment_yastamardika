@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getRTL } from '@fluentui/react/lib/Utilities';
 import { FocusZone, FocusZoneDirection } from '@fluentui/react/lib/FocusZone';
@@ -64,15 +64,7 @@ const classNames = mergeStyleSets({
     flexShrink: 0,
   },
 });
-interface UpdateTask {
-  title: string;
-  description: string;
-}
 const onRenderCell = (item: Task | undefined, index: number | undefined = 0): JSX.Element => {
-  // const [detailTask, setDetailTask] = useState({item})
-  type TaskId = {
-    id: number;
-  };
   const _deleteTask = () => {
     const apiUrl = `http://localhost:8000/tasks/${index + 1}`;
 
@@ -115,8 +107,8 @@ const onRenderCell = (item: Task | undefined, index: number | undefined = 0): JS
 export const TaskList: React.FunctionComponent = () => {
   const [task, setTask] = useState<Task[]>([]);
   const [page, setPage] = useState<number>(1);
+  const [taskAdded, setTaskAdded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const apiUrl = `http://localhost:8000/tasks?page=${page}&perPage=10`;
 
   const loadMoreData = () => {
@@ -135,9 +127,18 @@ export const TaskList: React.FunctionComponent = () => {
     }
   }
 
+  const handleTaskAdded = () => {
+    setTaskAdded(true); 
+    loadMoreData()
+  };
+
   useEffect(() => {
     loadMoreData();
-  },[]
+    if (taskAdded) {
+      loadMoreData()
+      setTaskAdded(false); // Reset the state once it's processed
+    }
+  }, [taskAdded]
     // , [task] comment this to handle update and delete
   );
 
@@ -154,11 +155,11 @@ export const TaskList: React.FunctionComponent = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  },[loading])
+  }, [loading])
 
   return (
     <FocusZone direction={FocusZoneDirection.vertical}>
-      <TaskForm />
+      <TaskForm onTaskAdded={handleTaskAdded} />
       <br />
       <Text variant="large">Task List</Text>
       <List items={task} onRenderCell={onRenderCell} />
